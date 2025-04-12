@@ -1,7 +1,6 @@
-import { View, Text, TextInput, Pressable, StyleSheet, ImageBackground, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, ImageBackground, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useState, useEffect } from 'react';
-import Swal from 'sweetalert2';
 import { loginUser } from '../../services/UserService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts, Rowdies_300Light, Rowdies_400Regular, Rowdies_700Bold } from '@expo-google-fonts/rowdies';
@@ -27,14 +26,11 @@ export default function LoginScreen() {
 
     const handleLogin = async () => {
         if (!email || !password) {
-            await Swal.fire({
-                title: 'Error',
-                text: 'Todos los campos son obligatorios',
-                icon: 'error',
-                confirmButtonColor: '#FF5A5F',
-                background: '#FFF',
-                color: '#333'
-            });
+            Alert.alert(
+                'Error',
+                'Todos los campos son obligatorios',
+                [{ text: 'OK', style: 'default' }]
+            );
             return;
         }
 
@@ -49,14 +45,11 @@ export default function LoginScreen() {
                 throw new Error('Credenciales inválidas');
             }
         } catch (error) {
-            await Swal.fire({
-                title: 'Error',
-                text: 'Credenciales inválidas',
-                icon: 'error',
-                confirmButtonColor: '#FF5A5F',
-                background: '#FFF',
-                color: '#333'
-            });
+            Alert.alert(
+                'Error',
+                'Credenciales inválidas',
+                [{ text: 'OK', style: 'default' }]
+            );
         } finally {
             setLoading(false);
         }

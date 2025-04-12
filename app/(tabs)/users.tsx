@@ -1,9 +1,8 @@
-import { View, Text, FlatList, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { useEffect, useState } from 'react';
 import { getAllUsers } from '../../services/UserService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import Swal from 'sweetalert2';
 import { useFonts, Rowdies_300Light, Rowdies_400Regular, Rowdies_700Bold } from '@expo-google-fonts/rowdies';
 
 interface User {
@@ -16,7 +15,7 @@ export default function UsersListScreen() {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
-    
+
     let [fontsLoaded] = useFonts({
         Rowdies_300Light,
         Rowdies_400Regular,
@@ -28,37 +27,38 @@ export default function UsersListScreen() {
             const data = await getAllUsers();
             setUsers(data);
         } catch (error) {
-            await Swal.fire({
-                title: 'Error',
-                text: 'No se pudieron cargar los usuarios',
-                icon: 'error',
-                confirmButtonColor: '#FF5A5F',
-                background: '#FFF',
-                color: '#333'
-            });
+            Alert.alert(
+                'Error',
+                'No se pudieron cargar los usuarios',
+                [
+                    { text: 'OK', style: 'default' }
+                ]
+            );
         } finally {
             setLoading(false);
         }
     };
 
     const handleLogout = async () => {
-        const { isConfirmed } = await Swal.fire({
-            title: 'Cerrar sesión',
-            text: '¿Estás seguro de que quieres salir?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#3D2A6A',
-            cancelButtonColor: '#e74a3b',
-            confirmButtonText: 'Sí, salir',
-            cancelButtonText: 'Cancelar',
-            background: '#FFF',
-            color: '#333'
-        });
-
-        if (isConfirmed) {
-            await AsyncStorage.removeItem('user');
-            router.replace('/(auth)/login');
-        }
+        Alert.alert(
+            'Cerrar sesión',
+            '¿Estás seguro de que quieres cerrar sesión?',
+            [
+                {
+                    text: 'Cancelar',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Cerrar sesión',
+                    onPress: async () => {
+                        await AsyncStorage.removeItem('user');
+                        router.replace('/(auth)/login');
+                    },
+                    style: 'destructive',
+                },
+            ],
+            { cancelable: false }
+        );
     };
 
     const handleViewUser = (userId: number) => {
@@ -75,7 +75,7 @@ export default function UsersListScreen() {
                 loadUsers();
             }
         };
-        
+
         checkAuth();
     }, []);
 
@@ -93,8 +93,8 @@ export default function UsersListScreen() {
                 <View style={styles.userInfo}>
                     <Text style={styles.welcomeText}>Hola, {currentUser?.name}</Text>
                 </View>
-                <Pressable 
-                    onPress={handleLogout} 
+                <Pressable
+                    onPress={handleLogout}
                     style={({ pressed }) => [
                         styles.logoutButton,
                         pressed && styles.logoutButtonPressed
@@ -106,7 +106,7 @@ export default function UsersListScreen() {
 
             <View style={styles.content}>
                 <Text style={styles.title}>Lista de Usuarios</Text>
-                
+
                 <FlatList
                     data={users}
                     keyExtractor={(item) => item.id.toString()}
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
     userName: {
         fontSize: 16,
         color: '#3D2A6A',
-        fontFamily: 'Rowdies_600SemiBold',
+        fontFamily: 'Rowdies_400Regular',
         marginBottom: 4,
     },
     userEmail: {
