@@ -1,7 +1,6 @@
-import { View, Text, TextInput, Pressable, StyleSheet, ImageBackground, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, ImageBackground, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import Swal from 'sweetalert2';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createUser } from '../../services/UserService';
 import { useFonts, Rowdies_300Light, Rowdies_400Regular, Rowdies_700Bold } from '@expo-google-fonts/rowdies';
@@ -28,14 +27,11 @@ export default function RegisterScreen() {
 
     const handleRegister = async () => {
         if (!name || !email || !password) {
-            await Swal.fire({
-                title: 'Error',
-                text: 'Todos los campos son obligatorios',
-                icon: 'error',
-                confirmButtonColor: '#FF5A5F',
-                background: '#FFF',
-                color: '#333'
-            });
+            Alert.alert(
+                'Error',
+                'Todos los campos son obligatorios',
+                [{ text: 'OK', style: 'default' }]
+            );
             return;
         }
 
@@ -56,28 +52,27 @@ export default function RegisterScreen() {
 
                 await AsyncStorage.setItem('user', JSON.stringify(userData));
 
-                await Swal.fire({
-                    title: '¡Registro exitoso!',
-                    text: `Bienvenido ${userData.name}`,
-                    icon: 'success',
-                    confirmButtonColor: '#3D2A6A',
-                    timer: 2000,
-                    showConfirmButton: false,
-                    background: '#FFF',
-                    color: '#333'
-                });
-
-                router.replace('/(tabs)/users');
+                Alert.alert(
+                    '¡Registro exitoso!',
+                    `Bienvenido ${userData.name}`,
+                    [
+                        { 
+                            text: 'OK',
+                            onPress: () => router.replace('/(tabs)/users')
+                        }
+                    ]
+                );
             } else {
-                await Swal.fire({
-                    title: 'Registro completo',
-                    text: 'Por favor inicia sesión con tus credenciales',
-                    icon: 'success',
-                    confirmButtonColor: '#3D2A6A',
-                    background: '#FFF',
-                    color: '#333'
-                });
-                router.replace('/login');
+                Alert.alert(
+                    'Registro completo',
+                    'Por favor inicia sesión con tus credenciales',
+                    [
+                        { 
+                            text: 'OK',
+                            onPress: () => router.replace('/login')
+                        }
+                    ]
+                );
             }
         } catch (error: any) {
             let errorMessage = 'Error al registrar el usuario';
@@ -90,14 +85,11 @@ export default function RegisterScreen() {
                 errorMessage = error.message;
             }
 
-            await Swal.fire({
-                title: 'Error',
-                text: errorMessage,
-                icon: 'error',
-                confirmButtonColor: '#FF5A5F',
-                background: '#FFF',
-                color: '#333'
-            });
+            Alert.alert(
+                'Error',
+                errorMessage,
+                [{ text: 'OK', style: 'default' }]
+            );
         } finally {
             setLoading(false);
         }
@@ -251,7 +243,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Rowdies_400Regular',
     },
     button: {
-        backgroundColor: '#6A537F', // Color morado
+        backgroundColor: '#6A537F',
         borderRadius: 12,
         padding: 18,
         marginTop: 10,
@@ -265,7 +257,7 @@ const styles = StyleSheet.create({
         elevation: 4,
     },
     buttonPressed: {
-        backgroundColor: '#2A1C4D', // Morado más oscuro al presionar
+        backgroundColor: '#2A1C4D',
         transform: [{ scale: 0.98 }],
     },
     buttonDisabled: {
